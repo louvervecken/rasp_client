@@ -1,3 +1,5 @@
+from __future__ import division
+
 import psutil
 from subprocess import Popen, PIPE
 

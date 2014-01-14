@@ -4,18 +4,21 @@ import time
 
 from subprocess import Popen
 from system_status import *
-
-alarm_enabled = False
-
-
+from temperature import TempSensorController
 
 def enable_motion():
     return Popen(['motion'])
 
     
 def run():
+    sleep_between_uploads = 10
+    sleep_between_temp_readouts = 7
+    alarm_enabled = False
+    temp_room = TempSensorController("28-000004cddb4f", sleep_between_temp_readouts)
+    temp_heating = TempSensorController("28-28-000004cdfb9f", sleep_between_temp_readouts)
+    temp_room.start()
+    temp_heating.start()
     while True:
-        global alarm_enabled
         # get alarm enabled config from server
         alarm_config = requests.get('https://rasp-lou-server.appspot.com/alarm-config/get', verify=False)
         if alarm_config.status_code == 200:
@@ -37,11 +40,13 @@ def run():
         free_storage = round(get_storage_usage()[2], 3)
         r = requests.post('https://rasp-lou-server.appspot.com/data-posting',
                           data={'cpu_temp': cpu_temp,
+                                'room_temp': temp_room.temperature.C,
+                                'heating_temp': temp_heating.temperature.C,
                                 'ram_perc': ram_perc,
                                 'free_storage': free_storage},
                           verify=False)
         print('{}-{}'.format(cpu_temp, r))
-        time.sleep(10)
+        time.sleep(sleep_between_uploads)
     
     
     

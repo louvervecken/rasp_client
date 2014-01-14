@@ -17,7 +17,7 @@ def run():
     while True:
         global alarm_enabled
         # get alarm enabled config from server
-        alarm_config = requests.get('https://rasp-lou-server.appspot.com/alarm-config/get')
+        alarm_config = requests.get('https://rasp-lou-server.appspot.com/alarm-config/get', verify=False)
         if alarm_config.status_code == 200:
             if alarm_config.text == u'alarm_enabled = True':
                 if alarm_enabled is False:
@@ -38,7 +38,8 @@ def run():
         r = requests.post('https://rasp-lou-server.appspot.com/data-posting',
                           data={'cpu_temp': cpu_temp,
                                 'ram_perc': ram_perc,
-                                'free_storage': free_storage})
+                                'free_storage': free_storage},
+                          verify=False)
         print('{}-{}'.format(cpu_temp, r))
         time.sleep(10)
     

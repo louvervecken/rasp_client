@@ -15,7 +15,7 @@ def run():
     sleep_between_temp_readouts = 7
     alarm_enabled = False
     temp_room = TempSensorController("28-000004cddb4f", sleep_between_temp_readouts)
-    temp_heating = TempSensorController("28-28-000004cdfb9f", sleep_between_temp_readouts)
+    temp_heating = TempSensorController("28-000004cdfb9f", sleep_between_temp_readouts)
     temp_room.start()
     temp_heating.start()
     while True:

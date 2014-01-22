@@ -38,7 +38,8 @@ def run():
             else:
                 raise ValueError("Unrecognised reply when getting alarm_config: {}".format(alarm_config.text))
         else:
-            raise IOError("Error getting alarm_config, error code: {}".format(alarm_config.status_code))
+            # raise IOError("Error getting alarm_config, error code: {}".format(alarm_config.status_code))
+            print("error getting alarm config")
         # get heating enabled config from server
         heating_config = requests.get('https://rasp-lou-server.appspot.com/heating-config/get', verify=False)
         if heating_config.status_code == 200:
@@ -53,7 +54,8 @@ def run():
             else:
                 raise ValueError("Unrecognised reply when getting heating_config: {}".format(heating_config.text))
         else:
-            raise IOError("Error getting heating_config, error code: {}".format(heating_config.status_code))
+            # raise IOError("Error getting heating_config, error code: {}".format(heating_config.status_code))
+            print("error getting heating config")
     
         cpu_temp = get_cpu_temperature()
         ram_perc = get_ram_usage()[3]

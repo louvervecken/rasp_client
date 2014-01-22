@@ -1,5 +1,6 @@
 import threading
 import time
+import os
 
 DEVICESDIR = "/sys/bus/w1/devices/"
 
@@ -17,6 +18,10 @@ class Temperature():
 #class for controlling the temperature sensor
 class TempSensorController(threading.Thread):
     def __init__(self, sensorId, timeToSleep):
+        # make the temp sensors discoverable, strange (not sure) this is needed over and over...
+        os.system("sudo	modprobe w1-gpio")
+        os.system("sudo	modprobe w1-therm")
+
         threading.Thread.__init__(self)
        
         #persist the file location

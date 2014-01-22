@@ -1,6 +1,7 @@
 import requests
 import datetime
 import time
+import RPi.GPIO as GPIO
 
 from subprocess import Popen
 from system_status import *
@@ -14,6 +15,10 @@ def run():
     sleep_between_uploads = 10
     sleep_between_temp_readouts = 7
     alarm_enabled = False
+    heating_enabled = False
+    heating_gpio = 11
+    GPIO.setmode(GPIO.BOARD)
+    GPIO.setup(channel=heating_gpio, direction=GPIO.OUT, initial=not heating_enabled)
     temp_room = TempSensorController("28-000004cddb4f", sleep_between_temp_readouts)
     temp_heating = TempSensorController("28-000004cdfb9f", sleep_between_temp_readouts)
     temp_room.start()
@@ -28,12 +33,27 @@ def run():
                     alarm_enabled = True
             elif alarm_config.text == u'alarm_enabled = False':
                 if alarm_enabled is True:
-                   motion_process.terminate()
-                   alarm_enabled = False
+                    motion_process.terminate()
+                    alarm_enabled = False
             else:
-                raise ValueError("Unrecognized reply when getting alarm_config: {}".format(alarm_config.text))
+                raise ValueError("Unrecognised reply when getting alarm_config: {}".format(alarm_config.text))
         else:
-            raise IOError("Error getting alarm config, error code: {}".format(alarm_config.status_code))
+            raise IOError("Error getting alarm_config, error code: {}".format(alarm_config.status_code))
+        # get heating enabled config from server
+        heating_config = requests.get('https://rasp-lou-server.appspot.com/heating-config/get', verify=False)
+        if heating_config.status_code == 200:
+            if heating_config.text == u'heating_enabled = True':
+                if heating_enabled is False:
+                    heating_enabled = True
+                    GPIO.output(heating_gpio, not heating_enabled)
+            elif heating_config.text == u'heating_enabled = False':
+                if heating_enabled is True:
+                    heating_enabled = False
+                    GPIO.output(heating_gpio, not heating_enabled)
+            else:
+                raise ValueError("Unrecognised reply when getting heating_config: {}".format(heating_config.text))
+        else:
+            raise IOError("Error getting heating_config, error code: {}".format(heating_config.status_code))
     
         cpu_temp = get_cpu_temperature()
         ram_perc = get_ram_usage()[3]

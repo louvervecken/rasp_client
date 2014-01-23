@@ -12,7 +12,7 @@ def enable_motion():
 
     
 def run():
-    sleep_between_uploads = 10
+    sleep_between_uploads = 60
     sleep_between_temp_readouts = 7
     alarm_enabled = False
     heating_enabled = False
@@ -60,13 +60,16 @@ def run():
         cpu_temp = get_cpu_temperature()
         ram_perc = get_ram_usage()[3]
         free_storage = round(get_storage_usage()[2], 3)
-        r = requests.post('https://rasp-lou-server.appspot.com/data-posting',
-                          data={'cpu_temp': cpu_temp,
-                                'room_temp': temp_room.temperature.C,
-                                'heating_temp': temp_heating.temperature.C,
-                                'ram_perc': ram_perc,
-                                'free_storage': free_storage},
-                          verify=False)
+        try:
+            r = requests.post('https://rasp-lou-server.appspot.com/data-posting',
+                              data={'cpu_temp': cpu_temp,
+                                    'room_temp': temp_room.temperature.C,
+                                    'heating_temp': temp_heating.temperature.C,
+                                    'ram_perc': ram_perc,
+                                    'free_storage': free_storage},
+                              verify=False)
+        except:
+           pass
         print('{}-{}'.format(cpu_temp, r))
         time.sleep(sleep_between_uploads)
     
